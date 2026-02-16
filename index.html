@@ -2,180 +2,115 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wheel of Names Clone</title>
-    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    <title>Wheel of Names</title>
     <style>
-        :root {
-            --header-pink: #fce4ec;
-            --blue-google: #1a73e8;
-            --text-grey: #5f6368;
-            --border-light: #dadce0;
-        }
-
-        body, html {
-            margin: 0; padding: 0;
-            height: 100%; width: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #ffffff;
-            overflow: hidden;
-        }
-
-        /* HEADER */
-        header {
-            background-color: var(--header-pink);
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            border-bottom: 1px solid #f8bbd0;
-        }
-
-        .logo { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; color: #333; }
-        .nav-icons { display: flex; gap: 18px; color: var(--text-grey); font-size: 0.85rem; align-items: center; }
-        .nav-icons span { cursor: pointer; display: flex; align-items: center; gap: 4px; }
-
-        /* LAYOUT */
-        .wrapper { display: flex; height: calc(100vh - 48px); }
-
-        /* IZQUIERDA: ADS */
-        .sidebar-left {
-            width: 260px;
-            padding: 15px;
-            border-right: 1px solid transparent; /* No tiene borde en la captura */
-        }
-        .ad-meta { font-size: 11px; color: #999; margin-bottom: 8px; }
-        .ad-card {
-            background: #202124;
-            color: white;
-            padding: 30px 20px;
-            border-radius: 8px;
-            position: relative;
-            cursor: pointer;
-        }
-        .ad-card h2 { margin: 10px 0; font-size: 1.8rem; }
-        .ad-card p { font-size: 12px; color: #aaa; margin: 0; }
-        .ad-btn {
-            position: absolute; bottom: 15px; right: 15px;
-            background: white; color: black; border-radius: 50%;
-            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-            font-weight: bold;
-        }
-
-        /* CENTRO: RUEDA */
-        .wheel-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            background: #ffffff;
-        }
-        #canvas { cursor: pointer; max-width: 95%; height: auto; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Roboto, Arial, sans-serif; overflow: hidden; background: white; }
         
-        .click-label {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            pointer-events: none;
-            z-index: 5;
+        /* HEADER IDENTICO */
+        header {
+            background-color: #fce4ec; height: 44px; display: flex;
+            align-items: center; justify-content: space-between; padding: 0 20px;
+            border-bottom: 1px solid #f8bbd0; color: #444; font-size: 14px;
         }
-        .click-label h1 { font-size: 3rem; color: #555; margin: 0; opacity: 0.8; }
-        .click-label p { color: #999; margin: 0; font-size: 1.1rem; }
+        .header-left { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 16px; }
+        .header-right { display: flex; gap: 20px; align-items: center; color: #5f6368; }
+        .header-right span { cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
+        /* LAYOUT PRINCIPAL */
+        .main { display: flex; height: calc(100vh - 44px); }
+
+        /* COLUMNA IZQUIERDA (ANUNCIO) */
+        .ads-col { width: 260px; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .ad-label { font-size: 11px; color: #888; display: flex; justify-content: space-between; }
+        .ad-box { 
+            background: #202124; color: white; border-radius: 8px; padding: 35px 20px; 
+            position: relative; cursor: pointer; height: 160px;
+        }
+        .ad-box h2 { margin: 15px 0 5px 0; font-size: 28px; }
+        .ad-box p { margin: 0; font-size: 12px; color: #aaa; }
+        .ad-circle { 
+            position: absolute; bottom: 20px; right: 20px; background: white; 
+            width: 35px; height: 35px; border-radius: 50%; color: black;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
+
+        /* COLUMNA CENTRAL (RUEDA) */
+        .wheel-col { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: #fff; }
+        #wheelCanvas { cursor: pointer; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
+        
         .pointer {
-            position: absolute;
-            right: 10%; /* Ajustado según captura */
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0; height: 0;
-            border-top: 15px solid transparent;
-            border-bottom: 15px solid transparent;
-            border-right: 30px solid #fbbc05;
-            z-index: 10;
+            position: absolute; right: 80px; top: 50%; transform: translateY(-50%);
+            width: 0; height: 0; border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent; border-right: 40px solid #fbbc05; z-index: 10;
         }
 
-        /* DERECHA: ENTRIES */
-        .sidebar-right {
-            width: 330px;
-            border-left: 1px solid var(--border-light);
-            display: flex;
-            flex-direction: column;
+        .overlay-text {
+            position: absolute; text-align: center; pointer-events: none; z-index: 5;
+            color: #555; text-shadow: 0 0 10px rgba(255,255,255,0.8);
         }
-        .tabs { display: flex; border-bottom: 1px solid var(--border-light); }
-        .tab { flex: 1; text-align: center; padding: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: var(--text-grey); }
-        .tab.active { color: var(--blue-google); border-bottom: 3px solid var(--blue-google); }
+        .overlay-text h1 { font-size: 60px; margin: 0; font-weight: 500; }
+        .overlay-text p { font-size: 20px; margin: 0; color: #888; }
 
-        .actions { display: flex; gap: 5px; padding: 8px; }
-        .actions button {
-            flex: 1; padding: 8px; border: none; border-radius: 4px;
-            color: white; font-weight: 600; font-size: 0.75rem; cursor: pointer;
-            background-color: var(--blue-google);
+        /* COLUMNA DERECHA (ENTRADAS) */
+        .entries-col { width: 340px; border-left: 1px solid #dadce0; display: flex; flex-direction: column; }
+        .tabs { display: flex; border-bottom: 1px solid #dadce0; }
+        .tab { flex: 1; text-align: center; padding: 12px; font-weight: bold; font-size: 14px; cursor: pointer; color: #5f6368; }
+        .tab.active { color: #1a73e8; border-bottom: 3px solid #1a73e8; }
+        
+        .toolbar { display: flex; gap: 6px; padding: 10px; }
+        .toolbar button { 
+            flex: 1; background: #1a73e8; color: white; border: none; 
+            padding: 8px; border-radius: 4px; font-weight: bold; font-size: 13px; cursor: pointer;
+        }
+        
+        textarea { 
+            flex: 1; border: none; padding: 20px; font-size: 18px; outline: none; 
+            resize: none; line-height: 1.6; color: #3c4043;
         }
 
-        textarea {
-            flex: 1; border: none; padding: 15px; font-size: 1rem;
-            line-height: 1.5; color: #333; outline: none; resize: none;
-        }
-
-        .footer-info {
-            padding: 10px; border-top: 1px solid var(--border-light);
-            display: flex; justify-content: space-between; font-size: 12px; color: #777;
-        }
+        .footer { padding: 10px 15px; font-size: 12px; color: #70757a; border-top: 1px solid #dadce0; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">
-        <img src="https://wheelofnames.com/images/favicon-32x32.png" width="22">
-        <span>wheelofnames.com</span>
-    </div>
-    <div class="nav-icons">
-        <span>⚙️ Customize</span>
-        <span>📄 New</span>
-        <span>📁 Open</span>
-        <span>💾 Save</span>
-        <span>🔗 Share</span>
-        <span>🖼️ Gallery</span>
-        <span>🌐 English</span>
+    <div class="header-left">🎡 wheelofnames.com</div>
+    <div class="header-right">
+        <span>⚙️ Customize</span><span>📄 New</span><span>📂 Open</span><span>💾 Save</span><span>🔗 Share</span><span>🖼️ Gallery</span><span>🌐 English</span>
     </div>
 </header>
 
-<div class="wrapper">
-    <div class="sidebar-left">
-        <div class="ad-meta">Report bad ad | Close ads ✕</div>
-        <div class="ad-card">
+<div class="main">
+    <div class="ads-col">
+        <div class="ad-label"><span>Report bad ad</span><span>Close ads ✕</span></div>
+        <div class="ad-box">
             <p>For windows 10, 11 32/64 bit</p>
             <h2>Download Now</h2>
-            <div class="ad-btn">→</div>
+            <div class="ad-circle">➔</div>
         </div>
-        <div class="ad-meta" style="text-align:center; margin-top:10px;">Fast Corporation LTD</div>
+        <div style="font-size: 10px; color:#ccc; text-align: center;">Fast Corporation LTD</div>
     </div>
 
-    <div class="wheel-main">
+    <div class="wheel-col" id="wheelContainer">
         <div class="pointer"></div>
-        <div class="click-label" id="label">
+        <div class="overlay-text" id="statusText">
             <h1>Click to spin</h1>
             <p>or press ctrl+enter</p>
         </div>
-        <canvas id="canvas" width="600" height="600"></canvas>
+        <canvas id="wheelCanvas" width="650" height="650"></canvas>
     </div>
 
-    <div class="sidebar-right">
+    <div class="entries-col">
         <div class="tabs">
-            <div class="tab active">Entries 8</div>
+            <div class="tab active" id="entriesCount">Entries 8</div>
             <div class="tab">Results 0</div>
         </div>
-        <div class="actions">
+        <div class="toolbar">
             <button>🔀 Shuffle</button>
             <button>↕️ Sort</button>
             <button>🖼️ Add image</button>
         </div>
-        <textarea id="nameList" spellcheck="false">Ali
+        <textarea id="textInput" spellcheck="false">Ali
 Beatriz
 Charles
 Diya
@@ -183,66 +118,84 @@ Eric
 Fatima
 Gabriel
 Hanna</textarea>
-        <div class="footer-info">
-            <span>Version 400 <span style="background:var(--blue-google); color:white; padding:1px 4px; border-radius:3px;">New!</span></span>
-            <span style="color:var(--blue-google); cursor:pointer;">Changelog</span>
+        <div class="footer">
+            <span>Version 400 <span style="background:#1a73e8; color:white; padding:1px 4px; border-radius:3px;">New!</span></span>
+            <span style="color:#1a73e8; cursor:pointer;">Changelog</span>
         </div>
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-<script src="https://rawcdn.githack.com/zarocknz/javascript-winwheel/2330a50c60961803273fc4242661d9894e142b78/Winwheel.min.js"></script>
-
 <script>
-    const googleColors = ['#4285f4', '#ea4335', '#fbbc05', '#34a853'];
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const textInput = document.getElementById('textInput');
+    const statusText = document.getElementById('statusText');
     
-    let theWheel = new Winwheel({
-        'canvasId'    : 'canvas',
-        'numSegments' : 8,
-        'outerRadius' : 280,
-        'textFontSize': 24,
-        'textFillStyle': 'white',
-        'segments'    : [
-            {'fillStyle' : '#4285f4', 'text' : 'Ali'},
-            {'fillStyle' : '#ea4335', 'text' : 'Beatriz'},
-            {'fillStyle' : '#fbbc05', 'text' : 'Charles'},
-            {'fillStyle' : '#34a853', 'text' : 'Diya'},
-            {'fillStyle' : '#4285f4', 'text' : 'Eric'},
-            {'fillStyle' : '#ea4335', 'text' : 'Fatima'},
-            {'fillStyle' : '#fbbc05', 'text' : 'Gabriel'},
-            {'fillStyle' : '#34a853', 'text' : 'Hanna'}
-        ],
-        'animation' : {
-            'type'     : 'spinToStop',
-            'duration' : 5,
-            'spins'    : 8,
-            'callbackFinished' : (seg) => { alert("Winner: " + seg.text); document.getElementById('label').style.display = 'block'; }
-        }
+    let names = [];
+    const colors = ['#4285f4', '#ea4335', '#fbbc05', '#34a853'];
+    let currentRotation = 0;
+    let isSpinning = false;
+
+    function drawWheel() {
+        names = textInput.value.split('\n').filter(n => n.trim() !== "");
+        document.getElementById('entriesCount').innerText = `Entries ${names.length}`;
+        
+        const arc = (Math.PI * 2) / names.length;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        names.forEach((name, i) => {
+            const angle = i * arc;
+            ctx.fillStyle = colors[i % colors.length];
+            
+            // Dibujar tajada
+            ctx.beginPath();
+            ctx.moveTo(325, 325);
+            ctx.arc(325, 325, 300, angle, angle + arc);
+            ctx.fill();
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Dibujar texto
+            ctx.save();
+            ctx.translate(325, 325);
+            ctx.rotate(angle + arc / 2);
+            ctx.textAlign = "right";
+            ctx.fillStyle = "white";
+            ctx.font = "bold 24px Segoe UI";
+            ctx.fillText(name, 280, 10);
+            ctx.restore();
+        });
+    }
+
+    function spin() {
+        if (isSpinning) return;
+        isSpinning = true;
+        statusText.style.opacity = 0;
+
+        const extraRotation = Math.floor(Math.random() * 360) + 3600; // 10 vueltas + random
+        currentRotation += extraRotation;
+        
+        canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+            isSpinning = false;
+            statusText.style.opacity = 1;
+            // Aquí se podría mostrar el ganador
+        }, 4000);
+    }
+
+    // Eventos
+    textInput.addEventListener('input', drawWheel);
+    canvas.addEventListener('click', spin);
+    
+    window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'Enter') spin();
     });
 
-    // Iniciar giro
-    document.getElementById('canvas').onclick = function() {
-        document.getElementById('label').style.display = 'none';
-        theWheel.stopAnimation(false);
-        theWheel.rotationAngle = 0;
-        theWheel.draw();
-        theWheel.startAnimation();
-    };
-
-    // Actualizar nombres desde el textarea
-    document.getElementById('nameList').oninput = function() {
-        let names = this.value.split('\n').filter(n => n.trim() !== "");
-        theWheel.numSegments = names.length;
-        theWheel.segments = [null];
-        names.forEach((n, i) => {
-            theWheel.addSegment({
-                'text': n,
-                'fillStyle': googleColors[i % 4],
-                'textFillStyle': 'white'
-            }, i + 1);
-        });
-        theWheel.draw();
-    };
+    // Inicializar
+    drawWheel();
 </script>
+
 </body>
 </html>
