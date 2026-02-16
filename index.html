@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of Names Clone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <style>
+        :root {
+            --pink-bg: #f8d7da;
+            --blue-btn: #1a73e8;
+            --grey-border: #dadce0;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #ffffff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* BARRA SUPERIOR (HEADER) */
+        header {
+            background-color: #fce4ec;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--grey-border);
+        }
+
+        .logo-section { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 1.2rem; }
+        .nav-tools { display: flex; gap: 15px; font-size: 0.9rem; color: #444; }
+        .nav-tools span { cursor: pointer; display: flex; align-items: center; gap: 5px; }
+
+        /* CONTENEDOR PRINCIPAL */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* LADO IZQUIERDO: PUBLICIDAD SIMULADA */
+        .ad-sidebar {
+            width: 280px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ad-box {
+            background: #202124;
+            color: white;
+            padding: 30px 20px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .ad-box h2 { margin: 0; font-size: 2rem; }
+        .ad-box p { font-size: 0.8rem; color: #bdc1c6; }
+        .ad-arrow {
+            position: absolute; bottom: 20px; right: 20px;
+            background: white; color: black; border-radius: 50%;
+            width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* CENTRO: LA RUEDA */
+        .wheel-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: radial-gradient(circle, #ffffff 0%, #f0f2f5 100%);
+        }
+
+        canvas {
+            max-width: 90%;
+            max-height: 80vh;
+        }
+
+        .wheel-text-overlay {
+            position: absolute;
+            pointer-events: none;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 2.5rem;
+        }
+
+        .pointer-marker {
+            position: absolute;
+            right: calc(50% - 275px);
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0; height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-right: 30px solid #fbbc05;
+            z-index: 100;
+        }
+
+        /* LADO DERECHO: ENTRADAS */
+        .entries-sidebar {
+            width: 320px;
+            border-left: 1px solid var(--grey-border);
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .entries-header {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            border-bottom: 1px solid var(--grey-border);
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .entries-header .active { color: var(--blue-btn); border-bottom: 2px solid var(--blue-btn); }
+
+        .entries-actions {
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+        }
+
+        .btn-small {
+            flex: 1;
+            padding: 6px;
+            background: var(--blue-btn);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        textarea {
+            flex: 1;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: none;
+        }
+
+        .footer-sidebar {
+            padding: 10px;
+            background: #f8f9fa;
+            font-size: 0.75rem;
+            color: #70757a;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-section">
+        <img src="https://wheelofnames.com/images/favicon-32x32.png" alt="logo" width="24">
+        wheelofnames.com
+    </div>
+    <div class="nav-tools">
+        <span>⚙️ Customize</span>
+        <span>📄 New</span>
+        <span>📂 Open</span>
+        <span>💾 Save</span>
+        <span>🔗 Share</span>
+        <span>🔍 Gallery</span>
+        <span>🌐 English</span>
+    </div>
+</header>
+
+<div class="main-layout">
+    <div class="ad-sidebar">
+        <div style="color:#777; font-size: 0.7rem;">Report bad ad | Close ads ✖</div>
+        <div class="ad-box">
+            <p>For windows 10, 11 32/64 bit</p>
+            <h2>Download Now</h2>
+            <div class="ad-arrow">➔</div>
+        </div>
+        <div style="color:#aaa; font-size: 0.6rem; text-align: center;">Fast Corporation LTD</div>
+    </div>
+
+    <div class="wheel-container">
+        <div class="pointer-marker"></div>
+        <canvas id="canvas" width="500" height="500"></canvas>
+        <div class="wheel-text-overlay">
+            Click to spin<br>
+            <span style="font-size: 1.2rem; font-weight: normal;">or press ctrl+enter</span>
+        </div>
+    </div>
+
+    <div class="entries-sidebar">
+        <div class="entries-header">
+            <div class="active">Entries <span>8</span></div>
+            <div>Results <span>0</span></div>
+        </div>
+        
+        <div class="entries-actions">
+            <button class="btn-small">🔀 Shuffle</button>
+            <button class="btn-small">↕️ Sort</button>
+            <button class="btn-small" style="background: #1a73e8;">🖼️ Add image</button>
+        </div>
+
+        <textarea id="namesList" oninput="updateWheel()">Ali
+Beatriz
+Charles
+Diya
+Eric
+Fatima
+Gabriel
+Hanna</textarea>
+
+        <div class="footer-sidebar">
+            <span>Version 400 <b style="color:white; background:var(--blue-btn); padding: 2px 4px; border-radius:3px;">New!</b></span>
+            <span style="color:var(--blue-btn); cursor:pointer;">Changelog</span>
+        </div>
+    </div>
+</div>
+
+<script src="https://rawcdn.githack.com/zarocknz/javascript-winwheel/2330a50c60961803273fc4242661d9894e142b78/Winwheel.min.js"></script>
+
+<script>
+    const colors = ['#4285f4', '#ea4335', '#fbbc05', '#34a853'];
+    
+    let theWheel = new Winwheel({
+        'canvasId'    : 'canvas',
+        'numSegments' : 8,
+        'lineWidth'   : 2,
+        'strokeStyle' : 'white',
+        'segments'    : [
+            {'fillStyle' : '#4285f4', 'text' : 'Ali', 'textFillStyle': 'white'},
+            {'fillStyle' : '#ea4335', 'text' : 'Beatriz', 'textFillStyle': 'white'},
+            {'fillStyle' : '#fbbc05', 'text' : 'Charles', 'textFillStyle': 'white'},
+            {'fillStyle' : '#34a853', 'text' : 'Diya', 'textFillStyle': 'white'},
+            {'fillStyle' : '#4285f4', 'text' : 'Eric', 'textFillStyle': 'white'},
+            {'fillStyle' : '#ea4335', 'text' : 'Fatima', 'textFillStyle': 'white'},
+            {'fillStyle' : '#fbbc05', 'text' : 'Gabriel', 'textFillStyle': 'white'},
+            {'fillStyle' : '#34a853', 'text' : 'Hanna', 'textFillStyle': 'white'}
+        ],
+        'animation' : {
+            'type'     : 'spinToStop',
+            'duration' : 5,
+            'spins'    : 10,
+            'callbackFinished' : (seg) => alert("¡Ganador: " + seg.text + "!")
+        }
+    });
+
+    // Función para actualizar la rueda en tiempo real según el texto
+    function updateWheel() {
+        const text = document.getElementById('namesList').value;
+        const names = text.split('\n').filter(n => n.trim() !== "");
+        
+        theWheel.segments = [null]; // Reset
+        theWheel.numSegments = names.length;
+
+        names.forEach((name, i) => {
+            theWheel.addSegment({
+                'text': name,
+                'fillStyle': colors[i % colors.length],
+                'textFillStyle': 'white'
+            }, i + 1);
+        });
+
+        theWheel.draw();
+    }
+
+    // Iniciar giro al hacer clic en el canvas
+    document.getElementById('canvas').onclick = function() {
+        theWheel.stopAnimation(false);
+        theWheel.rotationAngle = 0;
+        theWheel.draw();
+        theWheel.startAnimation();
+    };
+</script>
+
+</body>
+</html>
